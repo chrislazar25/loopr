@@ -1,6 +1,8 @@
-# 🛡️ Loopr
+# 🔄 Loopr
 
-An OpenClaw skill that turns your AI agent into an autonomous PR contributor. It watches a GitHub repo, finds open issues, builds fixes using AI, and submits PRs — with you approving each one through Telegram.
+*The whole pipeline runs in a loop. Job done is opening PRs.*
+
+An OpenClaw skill that turns your AI agent into an autonomous PR factory. It watches a GitHub repo, finds open issues, builds fixes using AI, and submits PRs — with you approving each one through Telegram.
 
 ---
 
