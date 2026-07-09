@@ -1,4 +1,4 @@
-# PR Sentinel — First Run Setup
+# Loopr — First Run Setup
 
 Follow these steps in order. If something doesn't work, there's a ✅ Verify check at the end of each step you can use to find where the issue is.
 
@@ -17,10 +17,10 @@ OpenClaw dashboard → Telegram section → Connect → Scan QR or follow link o
 ## Step 3: Install the Skill
 
 ```bash
-openclaw skills install git:chrislazar25/pr-sentinel-skill
+openclaw skills install git:chrislazar25/loopr-skill
 ```
 
-✅ **Verify:** `openclaw skills list` shows `pr-sentinel`
+✅ **Verify:** `openclaw skills list` shows `loopr`
 
 ## Step 4: Install GitHub CLI + Auth
 
@@ -85,9 +85,9 @@ Replace each `OWNER`, `REPO_NAME`, `YOUR_GITHUB_USERNAME`, and `/path/to/...` wi
 Put this in `~/.openclaw/workspace/HEARTBEAT.md`:
 
 ```
-## PR Sentinel Pipeline
+## Loopr Pipeline
 
-When you receive a heartbeat, execute the PR Sentinel pipeline:
+When you receive a heartbeat, execute the Loopr pipeline:
 1. Phase 0 — Check open PRs for maintainer feedback
 2. Phase 1 — Triage new issues (if no active follow-ups)
 3. Phase 2-6 — Continue the active pipeline

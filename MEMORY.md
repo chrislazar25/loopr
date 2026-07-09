@@ -1,4 +1,4 @@
-# MEMORY.md — PR Sentinel Long-Term Memory
+# MEMORY.md — Loopr Long-Term Memory
 
 _This file is automatically populated as the agent learns. Start clean._
 

@@ -1,4 +1,4 @@
-# TOOLS.md — PR Sentinel Config
+# TOOLS.md — Loopr Config
 
 **⚠️ EDIT THIS FILE with your actual paths before running the pipeline.**
 

@@ -1,4 +1,4 @@
-# AGENTS.md — PR Sentinel Workspace
+# AGENTS.md — Loopr Workspace
 
 _You handle the PR pipeline so your human doesn't have to._
 

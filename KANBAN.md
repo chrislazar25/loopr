@@ -1,4 +1,4 @@
-# KANBAN — PR Sentinel Pipeline
+# KANBAN — Loopr Pipeline
 
 **Repo:** `<set TARGET_REPO in TOOLS.md>`
 **Fork:** `<set FORK_USER in TOOLS.md>`

@@ -1,4 +1,4 @@
-# 🛡️ PR Sentinel
+# 🛡️ Loopr
 
 An OpenClaw skill that turns your AI agent into an autonomous PR contributor. It watches a GitHub repo, finds open issues, builds fixes using AI, and submits PRs — with you approving each one through Telegram.
 
@@ -103,19 +103,19 @@ Send a message like "hello" to your bot on Telegram. If it replies, you're good.
 
 ---
 
-### Step 3: Install the PR Sentinel Skill
+### Step 3: Install the Loopr Skill
 
 This installs the PR pipeline into your agent.
 
 In your terminal, run:
 ```bash
-openclaw skills install git:chrislazar25/pr-sentinel-skill
+openclaw skills install git:chrislazar25/loopr-skill
 ```
 
 Expected output:
 ```
-Installing skill from git:chrislazar25/pr-sentinel-skill
-✅ Installed pr-sentinel
+Installing skill from git:chrislazar25/loopr-skill
+✅ Installed loopr
 ```
 
 <details>
@@ -123,8 +123,8 @@ Installing skill from git:chrislazar25/pr-sentinel-skill
 
 If the command above doesn't work, do this instead:
 ```bash
-git clone https://github.com/chrislazar25/pr-sentinel-skill.git
-cp -r pr-sentinel-skill ~/.openclaw/workspace/skills/
+git clone https://github.com/chrislazar25/loopr-skill.git
+cp -r loopr-skill ~/.openclaw/workspace/skills/
 ```
 </details>
 
@@ -136,7 +136,7 @@ Run:
 openclaw skills list
 ```
 
-You should see `pr-sentinel` in the list.
+You should see `loopr` in the list.
 </details>
 
 ---
@@ -307,15 +307,15 @@ Open the file `~/.openclaw/workspace/HEARTBEAT.md` in a text editor.
 Delete everything in it and paste this:
 
 ```
-## PR Sentinel Pipeline
+## Loopr Pipeline
 
-When you receive a heartbeat, execute the PR Sentinel pipeline:
+When you receive a heartbeat, execute the Loopr pipeline:
 
 1. Phase 0 — Check open PRs for maintainer feedback
 2. Phase 1 — Triage new issues (if no active follow-ups)
 3. Phase 2-6 — Continue the active pipeline
 
-See the pr-sentinel skill for full instructions.
+See the loopr skill for full instructions.
 ```
 
 ---
@@ -332,10 +332,11 @@ Wait 30 seconds, then send a message to your agent on Telegram.
 
 ## 🎯 Usage
 
-Once set up, PR Sentinel runs autonomously on a schedule. You interact with it through Telegram:
+Once set up, Loopr runs autonomously on a schedule. You interact with it through Telegram:
 
 | You say... | It does... |
 |-----------|-----------|
+| **/loop** | Start the pipeline immediately (don't wait for heartbeat) |
 | *(nothing)* | Pipeline runs automatically on heartbeat (~every 30 min) |
 | **approve** | Approves a PR brief → submits the PR |
 | **reject** | Cancels the current PR attempt |
@@ -355,14 +356,14 @@ Run `openclaw gateway restart` and try sending a message again.
 Run `gh auth login` again and follow the browser prompts.
 
 **Nothing happens on heartbeat**
-Check that HEARTBEAT.md has the PR Sentinel section. The pipeline triggers on heartbeat polls — these happen periodically, not immediately. You can wait or check `openclaw status` to see the heartbeat state.
+Check that HEARTBEAT.md has the Loopr section. The pipeline triggers on heartbeat polls — these happen periodically, not immediately. You can wait or check `openclaw status` to see the heartbeat state.
 
 ---
 
 ## What's inside
 
 ```
-pr-sentinel-skill/
+loopr-skill/
 ├── SKILL.md           # Full pipeline definition (the skill)
 ├── AGENTS.md          # Workspace rules
 ├── SOUL.md            # Personality

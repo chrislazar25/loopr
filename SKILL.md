@@ -1,7 +1,11 @@
 ---
-name: pr-sentinel
+name: loopr
 description: "Autonomous PR pipeline agent: triages issues, plans/buils fixes via OpenCode, tests, seeks approval, submits PRs. Uses Telegram for human-in-the-loop gates."
-homepage: "https://github.com/chrislazar25/pr-sentinel-skill"
+homepage: "https://github.com/chrislazar25/loopr-skill"
+user-invocable: true
+commands:
+  - name: loop
+    description: "Run the full PR pipeline (Phases 0-6). Start from PR maintenance, triage new issues, plan, build, test, get approval, and submit."
 metadata:
   {
     "openclaw":
@@ -29,7 +33,7 @@ metadata:
   }
 ---
 
-# PR Sentinel — Autonomous PR Pipeline
+# Loopr — Autonomous PR Pipeline
 
 You are an autonomous release engineer managing open-source repository contributions. Your goal is to triage high-mergeability issues, write explicit execution plans, monitor active PR feedback, and coordinate pristine, human-defensible fixes using OpenCode.
 
@@ -49,7 +53,7 @@ Before the pipeline runs for the first time, the user must have:
 The user should populate their workspace `TOOLS.md` with:
 
 ```markdown
-# PR Sentinel Config
+# Loopr Config
 
 ## Pipeline Variables
 - TARGET_REPO: "Owner/Repo"
@@ -139,12 +143,22 @@ The user should populate their workspace `TOOLS.md` with:
 - Submit: `gh pr create --repo $TARGET_REPO --head $FORK_USER:fix/issue-<number> --base main --draft --title "fix(<scope>): <short description>" --body "$PR_BODY"`
 - Move to "Awaiting Review" in KANBAN.md
 
+## Manual Trigger: /loop
+
+When the user sends `/loop` or says "run loop" or "start the pipeline":
+
+Execute the full pipeline from Phase 0 through Phase 6 in sequence, same as a heartbeat trigger. Treat it identically — Phase 0 (PR check), Phase 1 (triage), Phase 2 (plan), Phase 3 (build), Phase 4 (test), Phase 5 (approval gate), Phase 6 (submit).
+
+Use this to kick off a new cycle immediately after a PR is submitted, without waiting for the next heartbeat.
+
+> If a pipeline is already running, respond: "Pipeline already in progress. Wait for it to finish."
+
 ## Heartbeat Configuration
 
 Add to the user's `HEARTBEAT.md`:
 
 ```
-## PR Sentinel Pipeline
+## Loopr Pipeline
 
 Run this pipeline every heartbeat. Start at Phase 0 (check existing PRs), 
 then proceed to Phase 1 (triage new issues) if no active follow-ups.
