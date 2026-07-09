@@ -215,27 +215,24 @@ Expected: a version number like `1.x.x`
 
 ---
 
-### Step 6: Clone the Repo You Want to Contribute To
+### Step 6: Fork and Clone Your Target Repo
 
-Pick a GitHub repo you want to fix issues in. For this example, we'll use `Aider-AI/aider`.
-
-1. Go to the repo on GitHub and click **Fork** (top-right corner)
-2. In your terminal:
+1. Go to a GitHub repo you want to contribute to (e.g. `OwnerName/RepoName`)
+2. Click the **Fork** button (top-right corner of the page)
+3. In your terminal:
    ```bash
    cd ~
-   git clone https://github.com/YOUR_GITHUB_USERNAME/aider.git
-   cd aider
-   git remote add upstream https://github.com/Aider-AI/aider.git
+   git clone https://github.com/YOUR_GITHUB_USERNAME/REPO_NAME.git
+   cd REPO_NAME
+   git remote add upstream https://github.com/ORIGINAL_OWNER/REPO_NAME.git
    ```
 
-> Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username.
-> Replace `aider` with the actual repo name if you're using a different one.
+> Replace `YOUR_GITHUB_USERNAME`, `REPO_NAME`, and `ORIGINAL_OWNER` with the actual values.
 
 <details>
 <summary><b>✅ Verify Step 6</b></summary>
 
 ```bash
-cd ~/aider
 git remote -v
 ```
 
@@ -250,25 +247,27 @@ The agent needs this to run tests.
 
 ```bash
 # macOS / Linux
-python3 -m venv ~/envs/aider_env
-source ~/envs/aider_env/bin/activate
-pip install -e ~/aider
+python3 -m venv ~/envs/REPO_NAME_env
+source ~/envs/REPO_NAME_env/bin/activate
+pip install -e ~/REPO_NAME
 deactivate
 ```
 
 **Windows (PowerShell):**
 ```powershell
-python -m venv $env:USERPROFILE\envs\aider_env
-$env:USERPROFILE\envs\aider_env\Scripts\Activate.ps1
-pip install -e $env:USERPROFILE\aider
+python -m venv $env:USERPROFILE\envs\REPO_NAME_env
+$env:USERPROFILE\envs\REPO_NAME_env\Scripts\Activate.ps1
+pip install -e $env:USERPROFILE\REPO_NAME
 deactivate
 ```
+
+> Replace `REPO_NAME` with the name of your forked repo.
 
 <details>
 <summary><b>✅ Verify Step 7</b></summary>
 
 ```bash
-source ~/envs/aider_env/bin/activate
+source ~/envs/REPO_NAME_env/bin/activate
 python --version
 deactivate
 ```
@@ -282,35 +281,22 @@ Should show a Python version (3.8 or higher).
 
 This tells the agent where everything is.
 
-Open the file `~/.openclaw/workspace/TOOLS.md` in any text editor. Replace the contents with this:
+Open the file `~/.openclaw/workspace/TOOLS.md` in any text editor. Replace the contents with this template:
 
-```markdown
-# PR Sentinel Config
-
-- TARGET_REPO: "Aider-AI/aider"
+```
+- TARGET_REPO: "OWNER/REPO_NAME"
 - FORK_USER: "YOUR_GITHUB_USERNAME"
-- LOCAL_REPO_DIR: "/home/YOUR_USERNAME/aider"
-- WORKSPACE_DIR: "/home/YOUR_USERNAME/.openclaw/workspace"
-- PYTHON_ENV_PATH: "/home/YOUR_USERNAME/envs/aider_env"
+- LOCAL_REPO_DIR: "/path/to/REPO_NAME"
+- WORKSPACE_DIR: "/path/to/.openclaw/workspace"
+- PYTHON_ENV_PATH: "/path/to/REPO_NAME_env"
 - UPSTREAM_REMOTE: "upstream"
 - ORIGIN_REMOTE: "origin"
 ```
 
-> ⚠️ **Important:** Replace `YOUR_GITHUB_USERNAME` and `YOUR_USERNAME` with your actual values. `YOUR_USERNAME` is your computer's username (the one you log in with).
-
-<details>
-<summary><b>Windows paths (PowerShell)</b></summary>
-
-```markdown
-- TARGET_REPO: "Aider-AI/aider"
-- FORK_USER: "YOUR_GITHUB_USERNAME"
-- LOCAL_REPO_DIR: "C:\\Users\\YOUR_USERNAME\\aider"
-- WORKSPACE_DIR: "C:\\Users\\YOUR_USERNAME\\.openclaw\\workspace"
-- PYTHON_ENV_PATH: "C:\\Users\\YOUR_USERNAME\\envs\\aider_env"
-- UPSTREAM_REMOTE: "upstream"
-- ORIGIN_REMOTE: "origin"
-```
-</details>
+> Replace each value with your actual paths. For example, if your repo is `Aider-AI/aider` and your username is `janedoe`:
+> - `TARGET_REPO` → `Aider-AI/aider`
+> - `FORK_USER` → `janedoe`
+> - `LOCAL_REPO_DIR` → `/home/janedoe/aider` or `C:\Users\janedoe\aider`
 
 ---
 

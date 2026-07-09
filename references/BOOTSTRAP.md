@@ -66,17 +66,19 @@ deactivate
 
 ## Step 8: Configure TOOLS.md
 
-Edit `~/.openclaw/workspace/TOOLS.md`:
+Edit `~/.openclaw/workspace/TOOLS.md` and paste this template:
 
 ```
-TARGET_REPO: "Owner/Repo"
-FORK_USER: "your-github-username"
-LOCAL_REPO_DIR: "/home/you/path/to/repo"
-WORKSPACE_DIR: "/home/you/.openclaw/workspace"
-PYTHON_ENV_PATH: "/home/you/envs/repo_env"
-UPSTREAM_REMOTE: "upstream"
-ORIGIN_REMOTE: "origin"
+- TARGET_REPO: "OWNER/REPO_NAME"
+- FORK_USER: "YOUR_GITHUB_USERNAME"
+- LOCAL_REPO_DIR: "/path/to/REPO_NAME"
+- WORKSPACE_DIR: "/path/to/.openclaw/workspace"
+- PYTHON_ENV_PATH: "/path/to/REPO_NAME_env"
+- UPSTREAM_REMOTE: "upstream"
+- ORIGIN_REMOTE: "origin"
 ```
+
+Replace each `OWNER`, `REPO_NAME`, `YOUR_GITHUB_USERNAME`, and `/path/to/...` with the actual values for your setup.
 
 ## Step 9: Update HEARTBEAT.md
 
