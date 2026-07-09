@@ -1,6 +1,6 @@
-# 🛡️ PR Sentinel — Autonomous PR Pipeline Skill
+# 🛡️ PR Sentinel
 
-An OpenClaw skill that helps you contribute to open source repos. It triages issues, builds fixes, and submits PRs — with you in the loop via Telegram.
+An OpenClaw skill that handles the full PR contribution pipeline — triages issues, builds fixes via OpenCode, and submits PRs. You stay in the loop via Telegram.
 
 ## How it works
 
@@ -18,30 +18,67 @@ PR Sentinel runs a 6-phase pipeline on every heartbeat:
 
 ## Install
 
+### 1. Install OpenClaw
+
+**Linux / Windows (WSL):**
+```bash
+curl -fsSL https://openclaw.ai/install.sh | sh
+```
+
+**macOS:**
+```bash
+curl -fsSL https://openclaw.ai/install.sh | sh
+# Or via Homebrew:
+brew install openclaw/tap/openclaw
+```
+
+**Windows (native):**
+Download the installer from [openclaw.ai](https://openclaw.ai) or use the [OpenClaw.app](https://openclaw.ai/download) bundle.
+
+### 2. Install the Skill
+
+Once OpenClaw is running:
+
 ```bash
 openclaw skills install git:chrislazar25/pr-sentinel-skill
 ```
 
-## Setup
+Or manually copy:
 
-You need:
-
-- [OpenClaw](https://github.com/openclaw/openclaw) + Telegram connected
-- `gh` (GitHub CLI) authenticated
-- `opencode` (`npm i -g opencode-ai`)
-- A local clone of your target repo
-- A Python virtualenv for test execution
-
-Then set your config in the workspace `TOOLS.md`:
-
-```
-TARGET_REPO: "Owner/Repo"
-FORK_USER: "your-github-username"
-LOCAL_REPO_DIR: "/path/to/repo"
-PYTHON_ENV_PATH: "/path/to/venv"
+```bash
+git clone https://github.com/chrislazar25/pr-sentinel-skill.git
+cp -r pr-sentinel-skill ~/.openclaw/workspace/skills/
 ```
 
-See [`references/BOOTSTRAP.md`](references/BOOTSTRAP.md) for full setup walkthrough.
+### 3. Install Dependencies
+
+- **GitHub CLI** (`gh`) — [install guide](https://cli.github.com)
+  - Then run: `gh auth login`
+- **OpenCode** — `npm install -g opencode-ai`
+  - Or: `brew install opencode` (macOS)
+- **Python** (for test runner) — Python 3.8+
+
+### 4. Configure
+
+Set your config in the workspace `TOOLS.md`:
+
+```
+TARGET_REPO: "Owner/Repo"      # e.g. Aider-AI/aider
+FORK_USER: "your-github-handle"
+LOCAL_REPO_DIR: "/path/to/repo"    # local clone
+WORKSPACE_DIR: "/home/you/.openclaw/workspace"
+PYTHON_ENV_PATH: "/path/to/venv"   # virtualenv for tests
+UPSTREAM_REMOTE: "upstream"
+ORIGIN_REMOTE: "origin"
+```
+
+### 5. Connect Telegram
+
+Set up Telegram in your OpenClaw gateway config. This is where you'll receive PR briefs and send approval/rejection commands.
+
+### 6. Start the Loop
+
+That's it. The pipeline triggers on each heartbeat. You'll get a Telegram message when Phase 5 hits — just reply "approve" to submit the PR.
 
 ## Architecture
 
@@ -51,8 +88,8 @@ Telegram (you)
     ▼
 OpenClaw Agent ──heartbeat──► Pipeline Loop
     │                              │
-    │                              ├─ Phase 0-1: GitHub Issues/PRs
-    │                              ├─ Phase 2-3: OpenCode plan+build
+    │                              ├─ Phases 0-1: GitHub Issues/PRs
+    │                              ├─ Phases 2-3: OpenCode plan+build
     │                              ├─ Phase 4: Test runner
     │                              ├─ Phase 5: Telegram approval gate
     │                              └─ Phase 6: PR submission
@@ -60,6 +97,14 @@ OpenClaw Agent ──heartbeat──► Pipeline Loop
     ▼
 Your target repo PRs
 ```
+
+## Commands
+
+In Telegram chat with the agent:
+
+- **approve** — approve PR and submit
+- **reject** — cancel current PR attempt
+- **status** — show pipeline state + KANBAN board
 
 ## What's inside
 
