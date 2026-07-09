@@ -1,7 +1,7 @@
 ---
 name: loopr
 description: "Autonomous PR pipeline agent: triages issues, plans/buils fixes via OpenCode, tests, seeks approval, submits PRs. Uses Telegram for human-in-the-loop gates."
-homepage: "https://github.com/chrislazar25/loopr-skill"
+homepage: "https://github.com/chrislazar25/loopr"
 user-invocable: true
 commands:
   - name: loop

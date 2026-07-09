@@ -109,12 +109,12 @@ This installs the PR pipeline into your agent.
 
 In your terminal, run:
 ```bash
-openclaw skills install git:chrislazar25/loopr-skill
+openclaw skills install git:chrislazar25/loopr
 ```
 
 Expected output:
 ```
-Installing skill from git:chrislazar25/loopr-skill
+Installing skill from git:chrislazar25/loopr
 ✅ Installed loopr
 ```
 
@@ -123,8 +123,8 @@ Installing skill from git:chrislazar25/loopr-skill
 
 If the command above doesn't work, do this instead:
 ```bash
-git clone https://github.com/chrislazar25/loopr-skill.git
-cp -r loopr-skill ~/.openclaw/workspace/skills/
+git clone https://github.com/chrislazar25/loopr.git
+cp -r loopr ~/.openclaw/workspace/skills/
 ```
 </details>
 
@@ -363,7 +363,7 @@ Check that HEARTBEAT.md has the Loopr section. The pipeline triggers on heartbea
 ## What's inside
 
 ```
-loopr-skill/
+loopr/
 ├── SKILL.md           # Full pipeline definition (the skill)
 ├── AGENTS.md          # Workspace rules
 ├── SOUL.md            # Personality

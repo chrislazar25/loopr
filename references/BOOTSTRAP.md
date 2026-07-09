@@ -17,7 +17,7 @@ OpenClaw dashboard → Telegram section → Connect → Scan QR or follow link o
 ## Step 3: Install the Skill
 
 ```bash
-openclaw skills install git:chrislazar25/loopr-skill
+openclaw skills install git:chrislazar25/loopr
 ```
 
 ✅ **Verify:** `openclaw skills list` shows `loopr`
