@@ -1,110 +1,377 @@
 # 🛡️ PR Sentinel
 
-An OpenClaw skill that handles the full PR contribution pipeline — triages issues, builds fixes via OpenCode, and submits PRs. You stay in the loop via Telegram.
+An OpenClaw skill that turns your AI agent into an autonomous PR contributor. It watches a GitHub repo, finds open issues, builds fixes using AI, and submits PRs — with you approving each one through Telegram.
 
-## How it works
+---
 
-PR Sentinel runs a 6-phase pipeline on every heartbeat:
+## 📋 What You Need First
 
-| Phase | What |
-|-------|------|
-| **0** | Check existing PRs for maintainer feedback |
-| **1** | Triage open issues, claim unclaimed ones |
-| **2** | Plan the fix with OpenCode (read-only analysis) |
-| **3** | Build the fix with OpenCode (file edits) |
-| **4** | Run tests, fix regressions |
-| **5** | Send technical brief to Telegram for approval |
-| **6** | Push and submit PR as draft |
+Before anything else, make sure you have these **four things**:
 
-## Install
+| # | What | Why |
+|---|------|-----|
+| 1 | A **GitHub account** | To fork repos and submit PRs |
+| 2 | **Telegram** installed on your phone | To chat with the agent |
+| 3 | A **computer** (any OS) | To run the agent locally |
+| 4 | A **GitHub repo** you want to contribute to | The target |
 
-### 1. Install OpenClaw
+Got all four? Good. Let's go.
 
-**Linux / Windows (WSL):**
+---
+
+## 🪜 Step-by-Step Setup
+
+### Step 1: Install OpenClaw
+
+OpenClaw is the platform that runs the agent. Pick your OS:
+
+<details>
+<summary><b>Windows</b></summary>
+
+1. Download the installer from https://openclaw.ai/download
+2. Run the installer (`.exe` or `.msi`)
+3. Open "Command Prompt" or "PowerShell" from the Start menu
+4. Type `openclaw version` and press Enter — you should see a version number
+
+</details>
+
+<details>
+<summary><b>macOS</b></summary>
+
+1. Open **Terminal** (search for it in Spotlight/Cmd+Space)
+2. Copy and paste this command, then press Enter:
+   ```bash
+   curl -fsSL https://openclaw.ai/install.sh | sh
+   ```
+3. Wait for it to finish (30-60 seconds)
+4. Type `openclaw version` and press Enter — you should see a version number
+
+**Alternative (if you have Homebrew):**
 ```bash
-curl -fsSL https://openclaw.ai/install.sh | sh
-```
-
-**macOS:**
-```bash
-curl -fsSL https://openclaw.ai/install.sh | sh
-# Or via Homebrew:
 brew install openclaw/tap/openclaw
 ```
+</details>
 
-**Windows (native):**
-Download the installer from [openclaw.ai](https://openclaw.ai) or use the [OpenClaw.app](https://openclaw.ai/download) bundle.
+<details>
+<summary><b>Linux</b></summary>
 
-### 2. Install the Skill
+1. Open **Terminal**
+2. Copy and paste this command, then press Enter:
+   ```bash
+   curl -fsSL https://openclaw.ai/install.sh | sh
+   ```
+3. Wait for it to finish (30-60 seconds)
+4. Type `openclaw version` and press Enter — you should see a version number
+</details>
 
-Once OpenClaw is running:
+<details>
+<summary><b>✅ Verify Step 1</b></summary>
 
+Run this in your terminal:
+```bash
+openclaw version
+```
+
+Expected output: something like `v0.x.x` (a version number).
+
+If you get an error like "command not found", OpenClaw didn't install correctly. Try restarting your terminal and running the install command again.
+</details>
+
+---
+
+### Step 2: Connect Telegram to Your Agent
+
+This is how you'll talk to your PR bot.
+
+1. In your terminal, run:
+   ```bash
+   openclaw gateway start
+   ```
+2. Open your web browser and go to: **http://localhost:8080**
+3. You should see the OpenClaw dashboard
+4. Find the **Telegram** section and click **Connect**
+5. Follow the on-screen instructions (you'll get a QR code or a link to open on your phone)
+6. Once connected, send a test message to your bot on Telegram — it should reply
+
+> ⚠️ **Can't find the Telegram section?** The exact steps depend on your OpenClaw version. See the [official Telegram guide](https://docs.openclaw.ai/telegram) for screenshots.
+
+<details>
+<summary><b>✅ Verify Step 2</b></summary>
+
+Send a message like "hello" to your bot on Telegram. If it replies, you're good. If not, restart OpenClaw (`openclaw gateway restart`) and try again.
+</details>
+
+---
+
+### Step 3: Install the PR Sentinel Skill
+
+This installs the PR pipeline into your agent.
+
+In your terminal, run:
 ```bash
 openclaw skills install git:chrislazar25/pr-sentinel-skill
 ```
 
-Or manually copy:
+Expected output:
+```
+Installing skill from git:chrislazar25/pr-sentinel-skill
+✅ Installed pr-sentinel
+```
 
+<details>
+<summary><b>Alternative: Manual install</b></summary>
+
+If the command above doesn't work, do this instead:
 ```bash
 git clone https://github.com/chrislazar25/pr-sentinel-skill.git
 cp -r pr-sentinel-skill ~/.openclaw/workspace/skills/
 ```
+</details>
 
-### 3. Install Dependencies
+<details>
+<summary><b>✅ Verify Step 3</b></summary>
 
-- **GitHub CLI** (`gh`) — [install guide](https://cli.github.com)
-  - Then run: `gh auth login`
-- **OpenCode** — `npm install -g opencode-ai`
-  - Or: `brew install opencode` (macOS)
-- **Python** (for test runner) — Python 3.8+
-
-### 4. Configure
-
-Set your config in the workspace `TOOLS.md`:
-
-```
-TARGET_REPO: "Owner/Repo"      # e.g. Aider-AI/aider
-FORK_USER: "your-github-handle"
-LOCAL_REPO_DIR: "/path/to/repo"    # local clone
-WORKSPACE_DIR: "/home/you/.openclaw/workspace"
-PYTHON_ENV_PATH: "/path/to/venv"   # virtualenv for tests
-UPSTREAM_REMOTE: "upstream"
-ORIGIN_REMOTE: "origin"
+Run:
+```bash
+openclaw skills list
 ```
 
-### 5. Connect Telegram
+You should see `pr-sentinel` in the list.
+</details>
 
-Set up Telegram in your OpenClaw gateway config. This is where you'll receive PR briefs and send approval/rejection commands.
+---
 
-### 6. Start the Loop
+### Step 4: Install GitHub CLI
 
-That's it. The pipeline triggers on each heartbeat. You'll get a Telegram message when Phase 5 hits — just reply "approve" to submit the PR.
+This is how the agent will interact with GitHub.
 
-## Architecture
+**Windows:**
+1. Download from https://cli.github.com
+2. Run the installer
+3. Open Command Prompt and run:
+   ```bash
+   gh auth login
+   ```
+4. Follow the prompts — select "GitHub.com", then "Login with a browser"
+5. A code will appear. Press Enter to open your browser, enter the code, and authorize
+
+**macOS:**
+```bash
+brew install gh
+gh auth login
+```
+Follow the browser login prompts.
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo apt install gh
+gh auth login
+```
+
+**Linux (Fedora):**
+```bash
+sudo dnf install gh
+gh auth login
+```
+
+<details>
+<summary><b>✅ Verify Step 4</b></summary>
+
+Run:
+```bash
+gh auth status
+```
+
+Expected output: `✓ Logged in to github.com account your-username`
+</details>
+
+---
+
+### Step 5: Install OpenCode
+
+OpenCode is the AI that writes the code fixes.
+
+```bash
+npm install -g opencode-ai
+```
+
+> ⚠️ **Don't have Node.js?** Install it from https://nodejs.org (download the "LTS" version), then run the command above.
+
+**macOS alternative:**
+```bash
+brew install opencode
+```
+
+<details>
+<summary><b>✅ Verify Step 5</b></summary>
+
+Run:
+```bash
+opencode --version
+```
+
+Expected: a version number like `1.x.x`
+</details>
+
+---
+
+### Step 6: Clone the Repo You Want to Contribute To
+
+Pick a GitHub repo you want to fix issues in. For this example, we'll use `Aider-AI/aider`.
+
+1. Go to the repo on GitHub and click **Fork** (top-right corner)
+2. In your terminal:
+   ```bash
+   cd ~
+   git clone https://github.com/YOUR_GITHUB_USERNAME/aider.git
+   cd aider
+   git remote add upstream https://github.com/Aider-AI/aider.git
+   ```
+
+> Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username.
+> Replace `aider` with the actual repo name if you're using a different one.
+
+<details>
+<summary><b>✅ Verify Step 6</b></summary>
+
+```bash
+cd ~/aider
+git remote -v
+```
+
+You should see two remotes: `origin` (your fork) and `upstream` (the original repo).
+</details>
+
+---
+
+### Step 7: Set Up a Python Virtual Environment
+
+The agent needs this to run tests.
+
+```bash
+# macOS / Linux
+python3 -m venv ~/envs/aider_env
+source ~/envs/aider_env/bin/activate
+pip install -e ~/aider
+deactivate
+```
+
+**Windows (PowerShell):**
+```powershell
+python -m venv $env:USERPROFILE\envs\aider_env
+$env:USERPROFILE\envs\aider_env\Scripts\Activate.ps1
+pip install -e $env:USERPROFILE\aider
+deactivate
+```
+
+<details>
+<summary><b>✅ Verify Step 7</b></summary>
+
+```bash
+source ~/envs/aider_env/bin/activate
+python --version
+deactivate
+```
+
+Should show a Python version (3.8 or higher).
+</details>
+
+---
+
+### Step 8: Configure TOOLS.md
+
+This tells the agent where everything is.
+
+Open the file `~/.openclaw/workspace/TOOLS.md` in any text editor. Replace the contents with this:
+
+```markdown
+# PR Sentinel Config
+
+- TARGET_REPO: "Aider-AI/aider"
+- FORK_USER: "YOUR_GITHUB_USERNAME"
+- LOCAL_REPO_DIR: "/home/YOUR_USERNAME/aider"
+- WORKSPACE_DIR: "/home/YOUR_USERNAME/.openclaw/workspace"
+- PYTHON_ENV_PATH: "/home/YOUR_USERNAME/envs/aider_env"
+- UPSTREAM_REMOTE: "upstream"
+- ORIGIN_REMOTE: "origin"
+```
+
+> ⚠️ **Important:** Replace `YOUR_GITHUB_USERNAME` and `YOUR_USERNAME` with your actual values. `YOUR_USERNAME` is your computer's username (the one you log in with).
+
+<details>
+<summary><b>Windows paths (PowerShell)</b></summary>
+
+```markdown
+- TARGET_REPO: "Aider-AI/aider"
+- FORK_USER: "YOUR_GITHUB_USERNAME"
+- LOCAL_REPO_DIR: "C:\\Users\\YOUR_USERNAME\\aider"
+- WORKSPACE_DIR: "C:\\Users\\YOUR_USERNAME\\.openclaw\\workspace"
+- PYTHON_ENV_PATH: "C:\\Users\\YOUR_USERNAME\\envs\\aider_env"
+- UPSTREAM_REMOTE: "upstream"
+- ORIGIN_REMOTE: "origin"
+```
+</details>
+
+---
+
+### Step 9: Update HEARTBEAT.md
+
+Open the file `~/.openclaw/workspace/HEARTBEAT.md` in a text editor.
+
+Delete everything in it and paste this:
 
 ```
-Telegram (you)
-    │
-    ▼
-OpenClaw Agent ──heartbeat──► Pipeline Loop
-    │                              │
-    │                              ├─ Phases 0-1: GitHub Issues/PRs
-    │                              ├─ Phases 2-3: OpenCode plan+build
-    │                              ├─ Phase 4: Test runner
-    │                              ├─ Phase 5: Telegram approval gate
-    │                              └─ Phase 6: PR submission
-    │
-    ▼
-Your target repo PRs
+## PR Sentinel Pipeline
+
+When you receive a heartbeat, execute the PR Sentinel pipeline:
+
+1. Phase 0 — Check open PRs for maintainer feedback
+2. Phase 1 — Triage new issues (if no active follow-ups)
+3. Phase 2-6 — Continue the active pipeline
+
+See the pr-sentinel skill for full instructions.
 ```
 
-## Commands
+---
 
-In Telegram chat with the agent:
+### Step 10: Restart and Go
 
-- **approve** — approve PR and submit
-- **reject** — cancel current PR attempt
-- **status** — show pipeline state + KANBAN board
+```bash
+openclaw gateway restart
+```
+
+Wait 30 seconds, then send a message to your agent on Telegram.
+
+---
+
+## 🎯 Usage
+
+Once set up, PR Sentinel runs autonomously on a schedule. You interact with it through Telegram:
+
+| You say... | It does... |
+|-----------|-----------|
+| *(nothing)* | Pipeline runs automatically on heartbeat (~every 30 min) |
+| **approve** | Approves a PR brief → submits the PR |
+| **reject** | Cancels the current PR attempt |
+| **status** | Shows what the pipeline is doing |
+
+---
+
+## ⚠️ Troubleshooting
+
+**"Command not found" for any tool**
+Reopen your terminal and try again. Some installs need a fresh terminal.
+
+**Telegram not responding**
+Run `openclaw gateway restart` and try sending a message again.
+
+**GitHub says "not authenticated"**
+Run `gh auth login` again and follow the browser prompts.
+
+**Nothing happens on heartbeat**
+Check that HEARTBEAT.md has the PR Sentinel section. The pipeline triggers on heartbeat polls — these happen periodically, not immediately. You can wait or check `openclaw status` to see the heartbeat state.
+
+---
 
 ## What's inside
 

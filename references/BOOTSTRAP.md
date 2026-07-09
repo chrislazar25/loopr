@@ -1,40 +1,100 @@
 # PR Sentinel — First Run Setup
 
-## Prerequisites
+Follow these steps in order. If something doesn't work, there's a ✅ Verify check at the end of each step you can use to find where the issue is.
 
-1. **OpenClaw** installed — https://github.com/openclaw/openclaw
-2. **GitHub CLI** — `gh auth login`
-3. **OpenCode** — `npm i -g opencode-ai`
-4. **A local clone** of the repo you want to contribute to
-5. **A Python virtualenv** for running tests
-6. **Telegram connected** to your OpenClaw instance
+## Step 1: Install OpenClaw
 
-## Install the Skill
+See README.md for OS-specific commands.
+
+✅ **Verify:** `openclaw version` shows a version number
+
+## Step 2: Connect Telegram
+
+OpenClaw dashboard → Telegram section → Connect → Scan QR or follow link on phone
+
+✅ **Verify:** Send "hello" to your bot on Telegram. It replies.
+
+## Step 3: Install the Skill
 
 ```bash
 openclaw skills install git:chrislazar25/pr-sentinel-skill
 ```
 
-Or clone + copy manually:
+✅ **Verify:** `openclaw skills list` shows `pr-sentinel`
+
+## Step 4: Install GitHub CLI + Auth
+
+Install from https://cli.github.com, then:
 
 ```bash
-git clone https://github.com/chrislazar25/pr-sentinel-skill
-cp -r pr-sentinel-skill ~/.openclaw/workspace/skills/
+gh auth login
 ```
 
-## Configure
+✅ **Verify:** `gh auth status` says logged in
 
-1. Open your workspace `TOOLS.md`
-2. Set `TARGET_REPO`, `FORK_USER`, `LOCAL_REPO_DIR`, `WORKSPACE_DIR`, `PYTHON_ENV_PATH`, `UPSTREAM_REMOTE`, `ORIGIN_REMOTE`
-3. Set `HEARTBEAT.md` to include the pipeline trigger (see skill's HEARTBEAT.md)
+## Step 5: Install OpenCode
 
-## First Heartbeat
+```bash
+npm install -g opencode-ai
+```
 
-Restart OpenClaw (`openclaw gateway restart`) and wait for the next heartbeat, or trigger one manually. The pipeline will start at Phase 0.
+✅ **Verify:** `opencode --version` shows a version
 
-## Usage
+## Step 6: Fork + Clone Target Repo
 
-- **Chat with the agent** like you would any Telegram contact
-- Type **"approve"** to advance past the human gate in Phase 5
-- Type **"reject"** to kill a PR attempt and clean up
-- Type **"status"** to get pipeline state + KANBAN summary
+Fork on GitHub, then:
+
+```bash
+cd ~
+git clone https://github.com/YOUR_USERNAME/REPO_NAME.git
+cd REPO_NAME
+git remote add upstream https://github.com/ORIGINAL_OWNER/REPO_NAME.git
+```
+
+✅ **Verify:** `git remote -v` shows `origin` and `upstream`
+
+## Step 7: Python Virtualenv
+
+```bash
+python3 -m venv ~/envs/repo_env
+source ~/envs/repo_env/bin/activate
+pip install -e ~/REPO_NAME
+deactivate
+```
+
+✅ **Verify:** `source ~/envs/repo_env/bin/activate && python --version` works
+
+## Step 8: Configure TOOLS.md
+
+Edit `~/.openclaw/workspace/TOOLS.md`:
+
+```
+TARGET_REPO: "Owner/Repo"
+FORK_USER: "your-github-username"
+LOCAL_REPO_DIR: "/home/you/path/to/repo"
+WORKSPACE_DIR: "/home/you/.openclaw/workspace"
+PYTHON_ENV_PATH: "/home/you/envs/repo_env"
+UPSTREAM_REMOTE: "upstream"
+ORIGIN_REMOTE: "origin"
+```
+
+## Step 9: Update HEARTBEAT.md
+
+Put this in `~/.openclaw/workspace/HEARTBEAT.md`:
+
+```
+## PR Sentinel Pipeline
+
+When you receive a heartbeat, execute the PR Sentinel pipeline:
+1. Phase 0 — Check open PRs for maintainer feedback
+2. Phase 1 — Triage new issues (if no active follow-ups)
+3. Phase 2-6 — Continue the active pipeline
+```
+
+## Step 10: Go
+
+```bash
+openclaw gateway restart
+```
+
+Wait 30 seconds. Message your bot on Telegram.
