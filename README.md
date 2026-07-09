@@ -6,6 +6,16 @@ An OpenClaw skill that turns your AI agent into an autonomous PR factory. It wat
 
 ---
 
+## 🚀 Try It Online
+
+Want to see Loopr in action before setting it up locally? Try it instantly:
+
+[**Try Loopr on ClawMama**](https://app.clawmama.run/skills/q238wy/hermes?utm_source=github&utm_medium=issue&utm_campaign=skill_outreach_chrislazar25_loopr)
+
+No install needed. Just open the link and play with it.
+
+---
+
 ## 📋 What You Need First
 
 Before anything else, make sure you have these **four things**:
