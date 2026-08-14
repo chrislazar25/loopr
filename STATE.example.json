@@ -1,0 +1,21 @@
+{
+  "repos": [
+    {
+      "full_name": "owner/repo",
+      "score": 8,
+      "external_merge_rate": 0.42,
+      "median_merge_days": 6,
+      "discovered_at": "YYYY-MM-DD",
+      "last_swept_at": "YYYY-MM-DD"
+    }
+  ],
+  "prs_owned": [
+    {
+      "repo": "owner/repo",
+      "issue": 412,
+      "pr": 901,
+      "status": "awaiting_review",
+      "opened_at": "YYYY-MM-DD"
+    }
+  ]
+}
