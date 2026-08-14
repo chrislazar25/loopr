@@ -66,7 +66,7 @@ The user should populate their workspace `TOOLS.md` with:
 
 ## OpenCode
 - Binary: `$(which opencode)`
-- Default model: opencode/deepseek-v4-flash-free
+- Default model: anthropic/claude-fable-5
 - Config dir: ~/.local/share/opencode/
 ```
 
@@ -99,20 +99,38 @@ The user should populate their workspace `TOOLS.md` with:
 - Read `CONTRIBUTING.md` for recommended issue labels
 - Pull top 15 issues by extracted labels: `gh issue list --repo $TARGET_REPO --search "state:open label:<label> sort:updated-desc" --limit 15 --json number,title,labels,comments,assignees`
 - **Rejection criteria**: blocked by maintainers, already assigned, linked PR exists, someone else explicitly claimed and hasn't failed yet
-- **Recency preference**: issues updated in last 30-60 days; skip anything older than 3 months unless pristine
-- **Claim**: `gh issue comment <number> --repo $TARGET_REPO --body "I'll take a look at this issue and work on a fix."`
+
+### Merge-Likelihood Gate (score before claiming)
+
+Before claiming any issue, compute a mergeability score. Gather evidence once per repo per session:
+
+- Repo receptiveness: `gh pr list --repo $TARGET_REPO --state merged --limit 30 --json author,mergedAt,createdAt` — what fraction of recently merged PRs are from external (non-maintainer) authors? What's the median days-to-merge?
+- Graveyard check: `gh pr list --repo $TARGET_REPO --state open --json createdAt --limit 50` — if most open PRs are >60 days old with no review, external PRs die here. Halt and alert via Telegram rather than adding to the pile.
+
+Then score each candidate issue 0-10:
+
+- **+3** maintainer explicitly confirmed the bug or said a fix is welcome ("PRs welcome", repro confirmed, labeled `help wanted`/`good first issue`)
+- **+2** issue updated in last 30 days (**+1** if 30-60 days; **0** older — skip anything past 3 months unless pristine)
+- **+2** scope is small and local: fix plausibly touches ≤3 files and no public API surface
+- **+2** repo receptiveness: external PRs merged within the last 30 days
+- **+1** clear repro steps or a failing test described in the issue
+- **-3** any design debate in the comments (contested direction = unmergeable regardless of code quality)
+
+**Threshold: score ≥ 6 to claim.** Log every scored issue and its score breakdown to KANBAN.md under `## Triage Scores` so scoring quality can be audited later. If nothing clears 6, do not force it — report the top 3 scores via Telegram and stop.
+
+- **Claim** (only after clearing the gate): `gh issue comment <number> --repo $TARGET_REPO --body "I'll take a look at this issue and work on a fix."`
 - Append to KANBAN.md under `## Scoped / To Do`
 
 ## Pipeline: Phase 2 — Plan Mode
 
 - Check out feature branch: `git checkout -b fix/issue-<number>`
 - Isolate: `echo "PLAN-*" >> .git/info/exclude`
-- Run: `opencode run --agent plan --dir $LOCAL_REPO_DIR "Analyze issue #<number>. Output a strict, step-by-step execution plan." > $WORKSPACE_DIR/PLAN-<number>.md`
+- Run: `opencode run --agent plan --model anthropic/claude-fable-5 --dir $LOCAL_REPO_DIR "Analyze issue #<number>. Output a strict, step-by-step execution plan." > $WORKSPACE_DIR/PLAN-<number>.md`
 - Update KANBAN.md to "In Progress (Planning)"
 
 ## Pipeline: Phase 3 — Build Mode
 
-- Run: `opencode run --agent build --dir $LOCAL_REPO_DIR "Modify files executing: $(cat $WORKSPACE_DIR/PLAN-<number>.md)."`
+- Run: `opencode run --agent build --model anthropic/claude-fable-5 --dir $LOCAL_REPO_DIR "Modify files executing: $(cat $WORKSPACE_DIR/PLAN-<number>.md)."`
 - Pre-commit hook: scan CONTRIBUTING.md for hook commands; execute if found; fix errors via OpenCode
 - `git add . && git commit -m "fix: resolve issue #<number>"`
 
@@ -123,17 +141,35 @@ The user should populate their workspace `TOOLS.md` with:
 - Execute: `source $PYTHON_ENV_PATH/bin/activate && cd $LOCAL_REPO_DIR && <test_command> > $WORKSPACE_DIR/TESTLOG-<number>.txt 2>&1`
 - If tests fail, fix regressions via OpenCode build mode until green
 
-## Pipeline: Phase 5 — Human Gate
+## Pipeline: Phase 5 — Human Gate (Layered Comprehension Brief)
 
-- Generate technical brief with:
-  - Root Cause / Mechanism
-  - Before vs After behavior (scenarios)
-  - Diff with line numbers
-  - Test evidence (full output + manual verification)
-  - Architecture diagram (SVG, rendered to PNG via cairosvg if available)
-- Send brief to Telegram in clean bullet format (no tables, no ASCII art)
-- Attach diagram as MEDIA PNG
-- **Gate Loop**: Halt for user approval. `approve` → Phase 6. `reject` → `git reset --hard` and close branch.
+The reviewer may have zero prior knowledge of this repo. Your job is to get them to a confident, defensible sign-off decision in the fewest words that still carry full depth. Never send everything at once — disclose in layers, deepest material on demand.
+
+**Layer 1 — Verdict card (one Telegram message, ≤10 lines):**
+- What broke, in one plain-English sentence a non-user of this repo understands
+- Why it broke (root cause, one sentence, name the actual function/file)
+- What the fix does (one sentence)
+- Risk: Low/Medium/High + the single most likely way this fix could be wrong
+- Confidence: your honest % that a maintainer merges this, with the one-phrase reason
+- `Files: N changed, +X/-Y lines. Tests: <pass count> passed.`
+
+**Layer 2 — Diagram (sent immediately after the card as MEDIA PNG):** see Diagram Spec below.
+
+**Layer 3 — On demand only.** End the card with: `Reply: "why" (root cause deep-dive) · "diff" (annotated diff) · "tests" (evidence) · "risk" (blast radius) · approve · reject`. Each reply gets one focused message answering exactly that, nothing else. Never volunteer Layer 3 unprompted.
+
+### Diagram Spec
+
+Generic top-down flowcharts are banned. The diagram's only job is to show **where execution diverges** — the fork between buggy behavior and fixed behavior.
+
+- **Pick the form by bug class:** ordering/timing/async bug → left-to-right sequence diagram; state bug → state diagram with the illegal transition marked; logic/branching bug → shared execution path that forks at the defect (buggy branch red, fixed branch green); data corruption → data-flow showing where the value goes wrong.
+- **One divergence point.** Shared path first, then the fork. The reader's eye should land on the fork within 2 seconds.
+- **Real identifiers only.** Nodes are actual function names and `file:line`, never abstract boxes like "Process Input" or "Handle Error".
+- **≤ 10 nodes.** If it needs more, the diagram is covering too much — cut context, not the fork.
+- **Layout follows causality:** left-to-right for anything temporal; top-down only for genuine hierarchy.
+- **Label the fork** with the issue number and one ≤6-word phrase (e.g. "#412: null check missing here").
+- Render SVG → PNG via cairosvg. Landscape, legible on a phone screen: minimum 14px font equivalent, high contrast.
+
+**Gate Loop**: Halt for user approval. `approve` → Phase 6. `reject` → `git reset --hard` and close branch. Any other reply → answer it as Layer 3, stay halted.
 
 ## Pipeline: Phase 6 — PR Submission
 

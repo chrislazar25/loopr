@@ -17,8 +17,9 @@
 ## OpenCode
 
 - **Binary:** `$(which opencode)`
-- **Default model:** opencode/deepseek-v4-flash-free (free tier)
+- **Default model:** anthropic/claude-fable-5 (requires `ANTHROPIC_API_KEY` in opencode auth)
 - **Config dir:** `~/.local/share/opencode/`
+- **Note:** plan and build commands pass `--model anthropic/claude-fable-5` explicitly. To downgrade a phase later (e.g. cheaper build model), change the flag on that command only. The OpenClaw agent itself (triage, briefs, Telegram) uses the model set in your OpenClaw gateway config, not this file.
 
 ### Pipeline commands
 
