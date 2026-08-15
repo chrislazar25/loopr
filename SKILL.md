@@ -1,6 +1,6 @@
 ---
 name: loopr
-description: "Autonomous PR pipeline agent: discovers repos, triages issues, plans/buils fixes via OpenCode, tests, seeks approval, submits PRs. Uses Telegram for human-in-the-loop gates."
+description: "Autonomous PR pipeline agent: discovers repos, triages issues, plans/builds fixes via OpenCode, tests, seeks approval, submits PRs. Uses Telegram for human-in-the-loop gates."
 homepage: "https://github.com/chrislazar25/loopr"
 user-invocable: true
 commands:
@@ -60,7 +60,7 @@ The user should populate their workspace `TOOLS.md` with:
 - REPOS_DIR: "/home/you/Desktop/repos"
 - WORKSPACE_DIR: "/path/to/openclaw-workspace"
 - PYTHON_ENVS_DIR: "/path/to/venvs"
-- REPOS_FILE: "$WORKSPACE_DIR/loopr/STATE.json"
+- REPOS_FILE: "$WORKSPACE_DIR/STATE.json"
 - UPSTREAM_REMOTE: "upstream"
 - ORIGIN_REMOTE: "origin"
 
@@ -85,6 +85,7 @@ The user should populate their workspace `TOOLS.md` with:
 7. **Pre-commit Integrity**: Always identify and execute pre-commit hooks specified in CONTRIBUTING.md before finalizing any commit. If hooks fail, fix via OpenCode before committing again.
 8. **STATE.json is the source of truth** for repos in rotation and PRs owned. Update it at every transition (issue claimed, PR opened, PR closed). KANBAN.md mirrors it in human-readable form.
 9. **Repo context** (rotation scores, merge metrics, per-issue evidence) is kept in each repo's `$WORKSPACE_DIR/<repo>/` notes. The loopr skill's own context/future work lives in `context/` inside this skill folder.
+10. **State lives in the workspace, never in the skill folder.** All mutable pipeline state uses explicit paths under `$WORKSPACE_DIR` (the agent workspace root): `$WORKSPACE_DIR/STATE.json`, `$WORKSPACE_DIR/KANBAN.md`, `$WORKSPACE_DIR/PLAN-<number>.md`, `$WORKSPACE_DIR/TESTLOG-<number>.txt`, `$WORKSPACE_DIR/<number>/` evidence dirs. The skill folder is read-only instructions (SKILL.md, KEYWORDS.md, context/, references/) — a skill reinstall must never destroy pipeline state. Never resolve these filenames relative to the current directory.
 
 ## Pipeline: Phase 0 — PR Maintenance & Feedback Loop
 
@@ -204,7 +205,7 @@ Generic top-down flowcharts are banned. The diagram's only job is to show **wher
 - Push to fork: `git push $ORIGIN_REMOTE fix/issue-<number>` (in `$REPOS_DIR/<repo>/`)
 - Check for `.github/PULL_REQUEST_TEMPLATE.md` or CONTRIBUTING.md template
 - Generate PR body from Mandatory PR Template if none exists
-- Submit: `gh pr create --repo <owner/repo> --head $FORK_USER:fix/issue-<number> --base main --draft --title "fix(<scope>): <short description>" --body "$PR_BODY"`
+- Submit: `gh pr create --repo <owner/repo> --head $FORK_USER:fix/issue-<number> --base main --title "fix(<scope>): <short description>" --body "$PR_BODY"` (real PR, not draft — approval already happened at Phase 5)
 - **Link the PR on the issue**: comment on issue #<number> with the PR link and a one-line summary. (If the maintainer already replied "go ahead", this comment IS the proof the proposal was accepted.)
 - Update STATE.json (`prs_owned += {repo, issue, pr, status: awaiting_review}`) and move the KANBAN card to "Awaiting Review"
 - Future feedback on this PR is handled by Phase 0 (amend same branch in place, or close on rejection — never reopen)

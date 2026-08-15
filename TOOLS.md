@@ -9,7 +9,7 @@
 - REPOS_DIR: "/home/you/Desktop/repos"          # base dir where forks get cloned
 - WORKSPACE_DIR: "/home/you/.openclaw/workspace"
 - PYTHON_ENVS_DIR: "/home/you/envs"             # one venv per repo, created on demand
-- REPOS_FILE: "$WORKSPACE_DIR/loopr/STATE.json" # live state — gitignored, never commit
+- REPOS_FILE: "$WORKSPACE_DIR/STATE.json"       # live state at workspace root — never inside the skill folder
 - UPSTREAM_REMOTE: "upstream"
 - ORIGIN_REMOTE: "origin"
 ```
