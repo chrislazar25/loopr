@@ -66,7 +66,7 @@ The user should populate their workspace `TOOLS.md` with:
 
 ## OpenCode
 - Binary: `$(which opencode)`
-- Default model: anthropic/claude-fable-5
+- Default model: ${OPENCODE_MODEL} (set in TOOLS.md)
 - Config dir: ~/.local/share/opencode/
 ```
 
@@ -149,12 +149,12 @@ The repo's receptiveness (external merge rate, days-to-merge, graveyard) was pro
 
 - Ensure the repo exists locally (see Phase 1b setup). Check out feature branch in it: `git checkout -b fix/issue-<number>`
 - Isolate: `echo "PLAN-*" >> .git/info/exclude`
-- Run: `opencode run --agent plan --model anthropic/claude-fable-5 --dir $REPOS_DIR/<repo> "Analyze issue #<number> in <owner/repo>. Output a strict, step-by-step execution plan." > $WORKSPACE_DIR/PLAN-<number>.md`
+- Run: `opencode run --agent plan --model ${OPENCODE_PLAN_MODEL} --dir $REPOS_DIR/<repo> "Analyze issue #<number> in <owner/repo>. Output a strict, step-by-step execution plan." > $WORKSPACE_DIR/PLAN-<number>.md`
 - Update KANBAN.md to "In Progress (Planning)" with repo name
 
 ## Pipeline: Phase 3 — Build Mode
 
-- Run: `opencode run --agent build --model anthropic/claude-fable-5 --dir $REPOS_DIR/<repo> "Modify files executing: $(cat $WORKSPACE_DIR/PLAN-<number>.md)."`
+- Run: `opencode run --agent build --model ${OPENCODE_BUILD_MODEL} --dir $REPOS_DIR/<repo> "Modify files executing: $(cat $WORKSPACE_DIR/PLAN-<number>.md)."`
 - Pre-commit hook: scan CONTRIBUTING.md for hook commands; execute if found; fix errors via OpenCode
 - `git add . && git commit -m "fix: resolve issue #<number>"`
 
@@ -234,3 +234,7 @@ with the human before posting.
 ```
 
 See `{baseDir}/references/BOOTSTRAP.md` for first-run setup guide.
+
+## Model Configuration
+
+All OpenCode model flags reference variables defined in your workspace `TOOLS.md`. OpenClaw's own model (triage, briefs, Telegram) is configured separately in your OpenClaw gateway config.

@@ -19,9 +19,20 @@ Target repos are no longer fixed: they are discovered dynamically (see SKILL.md 
 ## OpenCode
 
 - **Binary:** `$(which opencode)`
-- **Default model:** anthropic/claude-fable-5 (requires `ANTHROPIC_API_KEY` in opencode auth)
 - **Config dir:** `~/.local/share/opencode/`
-- **Note:** plan and build commands pass `--model anthropic/claude-fable-5` explicitly. To downgrade a phase later (e.g. cheaper build model), change the flag on that command only. The OpenClaw agent itself (triage, briefs, Telegram) uses the model set in your OpenClaw gateway config, not this file.
+
+### Model Configuration (single source of truth)
+
+Set these in your **workspace** `TOOLS.md` (not this template):
+
+```markdown
+# OpenCode Models
+- OPENCODE_PLAN_MODEL: "anthropic/claude-3-5-haiku"      # Phase 2: planning (cheaper OK)
+- OPENCODE_BUILD_MODEL: "anthropic/claude-fable-5"       # Phase 3: code edits (quality critical)
+- OPENCODE_DEFAULT_MODEL: "anthropic/claude-fable-5"     # Fallback if plan/build not set
+```
+
+**Note:** OpenClaw's own model (triage, briefs, Telegram) is configured in your OpenClaw gateway config, not here.
 
 ## Google Custom Search (Github search not used for discovery)
 
@@ -31,12 +42,12 @@ Not applicable — discovery uses the GitHub Search API only (see KEYWORDS.md + 
 
 Plan mode:
 ```bash
-opencode run --agent plan --model anthropic/claude-fable-5 --dir $REPOS_DIR/<repo> "Analyze issue #<number> in <owner/repo>. Output strict step-by-step plan." > $WORKSPACE_DIR/PLAN-<number>.md
+opencode run --agent plan --model ${OPENCODE_PLAN_MODEL} --dir $REPOS_DIR/<repo> "Analyze issue #<number> in <owner/repo>. Output strict step-by-step plan." > $WORKSPACE_DIR/PLAN-<number>.md
 ```
 
 Build mode:
 ```bash
-opencode run --agent build --model anthropic/claude-fable-5 --dir $REPOS_DIR/<repo> "Modify files executing: $(cat $WORKSPACE_DIR/PLAN-<number>.md)."
+opencode run --agent build --model ${OPENCODE_BUILD_MODEL} --dir $REPOS_DIR/<repo> "Modify files executing: $(cat $WORKSPACE_DIR/PLAN-<number>.md)."
 ```
 
 ## Telegram Setup
