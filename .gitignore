@@ -1,3 +1,6 @@
 STATE.json
 *.log
 .DS_Store
+
+# Pipeline context files (per-issue CONTEXT.md, FUTURE-WORK.md)
+/context/
